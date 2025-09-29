@@ -877,6 +877,10 @@ MiniPick.config = {
     -- String to use as prefix in prompt
     prompt_prefix = '> ',
   },
+
+  callbacks = {
+    on_char = nil,
+  },
 }
 --minidoc_afterlines_end
 
@@ -1982,6 +1986,9 @@ H.setup_config = function(config)
   H.check_type('window.prompt_caret', config.window.prompt_caret, 'string')
   H.check_type('window.prompt_prefix', config.window.prompt_prefix, 'string')
 
+  H.check_type('callbacks', config.callbacks, 'table')
+  H.check_type('callbacks.on_char', config.callbacks.on_char, 'function', true)
+
   return config
 end
 
@@ -2206,6 +2213,8 @@ H.picker_advance = function(picker)
 
     local char = H.getcharstr(picker.opts.delay.async)
     if H.cache.is_force_stop_advance then break end
+    local callback = H.get_config().callbacks.on_char
+    if callback ~= nil then char = callback(picker, char) or char end
 
     is_aborted = char == nil
     if is_aborted then break end
